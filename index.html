@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SkyTrace — Airport Baggage Lost &amp; Found</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="shell">
+    <button class="brand" id="brand-btn" type="button">
+      <span class="brand-mark">✈</span> SkyTrace
+      <span class="brand-sub">BAGGAGE SERVICES</span>
+    </button>
+    <div class="session-pill" id="session-pill"></div>
+  </div>
+</header>
+
+<!-- Shown when a session expires or the user is signed out for inactivity -->
+<div class="notice-banner hidden" id="notice-banner" role="alert"></div>
+
+<main>
+
+  <!-- ============================================================
+       LANDING
+       ============================================================ -->
+  <section class="view" id="view-landing">
+    <div class="shell hero">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow-note">Lost &amp; found management system</p>
+          <h1>Every misrouted bag, tracked from carousel to claim.</h1>
+          <p class="lede">
+            SkyTrace lets baggage services log a found bag in seconds and lets
+            passengers search for their own - matched automatically against
+            flight number, tag and description, so nobody has to dig through
+            a spreadsheet.
+          </p>
+          <div class="entry-row">
+            <button class="tag-btn" id="go-passenger" type="button">
+              <span class="tag-kicker">Passenger</span>
+              <span class="tag-title">Find my bag</span>
+              <span class="tag-desc">Search by flight, tag or description</span>
+            </button>
+            <button class="tag-btn staff" id="go-staff" type="button">
+              <span class="tag-kicker">Staff</span>
+              <span class="tag-title">Baggage services</span>
+              <span class="tag-desc">Log finds &amp; review claims</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="board">
+          <div class="board-head">
+            <span>Recently logged</span>
+            <span class="live-dot">Live</span>
+          </div>
+          <div class="board-cols">
+            <span>Flight</span>
+            <span>Tag</span>
+            <span>Location</span>
+            <span>Status</span>
+          </div>
+          <div class="board-rows" id="hero-board-rows"></div>
+        </div>
+      </div>
+
+      <div class="how-strip">
+        <div class="how-card">
+          <div class="how-num">01</div>
+          <h3>Staff log the bag</h3>
+          <p>Tag number, flight, colour, brand and a short description are entered at the baggage service desk the moment a bag is found.</p>
+        </div>
+        <div class="how-card">
+          <div class="how-num">02</div>
+          <h3>The algorithm matches it</h3>
+          <p>When a passenger searches, a weighted scoring model compares their details against every unclaimed bag and ranks the closest matches.</p>
+        </div>
+        <div class="how-card">
+          <div class="how-num">03</div>
+          <h3>Staff verify &amp; release</h3>
+          <p>A claim request lands on the staff dashboard for approval before the bag is marked returned. A human always confirms the match.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PASSENGER LOGIN
+       ============================================================ -->
+  <section class="view hidden" id="view-passenger-login">
+    <div class="shell">
+      <div class="auth-wrap">
+        <div class="auth-side"><br><br>
+          <p class="eyebrow-note">Passenger portal</p>
+          <h2>Sign in to search for your bag</h2>
+          <p>We use your booking reference instead of a password - the same way you'd check in for a flight.</p>
+        </div>
+        <form class="auth-form" id="pax-login-form">
+          <div class="form-msg error hidden" id="pax-login-msg"></div>
+          <div class="field">
+            <label for="pax-booking-ref">Booking reference</label>
+            <input type="text" id="pax-booking-ref" placeholder="e.g. QR482K" required />
+          </div>
+          <div class="field">
+            <label for="pax-last-name">Last name</label>
+            <input type="text" id="pax-last-name" placeholder="As it appears on your ticket" required />
+          </div>
+          <button class="btn btn-primary" type="submit">Sign in</button>
+          <p class="switch-line">New passenger? <button type="button" id="pax-to-register-link">Create an account</button></p>
+          <p class="switch-line" style="margin-top:6px;">Work here instead? <button type="button" id="pax-to-staff-link">Staff sign in</button></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PASSENGER REGISTRATION
+       ============================================================ -->
+  <section class="view hidden" id="view-passenger-register">
+    <div class="shell">
+      <div class="auth-wrap">
+        <div class="auth-side">
+          <p class="eyebrow-note">Passenger portal</p>
+          <h2>Create your passenger account</h2>
+          <p>Register once with your booking details and you can search for, and claim, your bag. You will be signed in straight after registering.</p>
+          <div class="demo-creds">
+            <strong>Tips</strong>
+            Your booking reference is the 6-character code on your ticket.
+            Your last name must match the name on your booking.
+          </div>
+        </div>
+        <form class="auth-form" id="pax-register-form" novalidate>
+          <div class="form-msg error hidden" id="pax-register-msg"></div>
+          <div class="field-row">
+            <div class="field">
+              <label for="newpax-first-name">First name</label>
+              <input type="text" id="newpax-first-name" maxlength="45" autocomplete="given-name" required />
+            </div>
+            <div class="field">
+              <label for="newpax-last-name">Last name</label>
+              <input type="text" id="newpax-last-name" maxlength="45" autocomplete="family-name" required />
+            </div>
+          </div>
+          <div class="field">
+            <label for="newpax-email">Email address</label>
+            <input type="email" id="newpax-email" maxlength="100" autocomplete="email" required />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="newpax-booking-ref">Booking reference</label>
+              <input type="text" id="newpax-booking-ref" maxlength="6" placeholder="e.g. QR482K" required />
+            </div>
+            <div class="field">
+              <label for="newpax-flight">Flight number</label>
+              <input type="text" id="newpax-flight" maxlength="10" placeholder="e.g. QR482" required />
+            </div>
+          </div>
+          <button class="btn btn-primary" type="submit">Create account</button>
+          <p class="switch-line">Already registered? <button type="button" id="pax-register-to-login-link">Sign in</button></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PASSENGER DASHBOARD
+       ============================================================ -->
+  <section class="view hidden" id="view-passenger-dashboard">
+    <div class="shell">
+      <div class="dash-head">
+        <div>
+          <h1>Welcome back, <span id="pax-welcome-name"></span></h1>
+          <p>Search for your bag below - the more details you give, the sharper the match.</p>
+        </div>
+        <button class="btn btn-outline btn-small" id="pax-logout-link" type="button">Sign out</button>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <div class="panel">
+            <div class="panel-head"><h2>Search for your bag</h2></div>
+            <form id="pax-search-form" style="padding:20px;">
+              <div class="field-row">
+                <div class="field">
+                  <label for="pax-flight-input">Flight number</label>
+                  <input type="text" id="pax-flight-input" required />
+                </div>
+                <div class="field">
+                  <label for="pax-tag-input">Baggage tag number (if known)</label>
+                  <input type="text" id="pax-tag-input" placeholder="e.g. QR48219" />
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="pax-color-input">Colour</label>
+                  <input type="text" id="pax-color-input" placeholder="e.g. Black" />
+                </div>
+                <div class="field">
+                  <label for="pax-brand-input">Brand</label>
+                  <input type="text" id="pax-brand-input" placeholder="e.g. Samsonite" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="pax-desc-input">Description</label>
+                <textarea id="pax-desc-input" rows="3" placeholder="Anything distinctive — a ribbon, a sticker, a dent…"></textarea>
+              </div>
+              <button class="btn btn-primary" type="submit">Search matches</button>
+            </form>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h2>Matches</h2></div>
+            <div style="padding:20px;">
+              <p class="empty-state" id="pax-search-hint" style="padding:8px 0 4px;">Run a search above to see ranked matches here.</p>
+              <div id="pax-search-results"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h2>My claims</h2></div>
+          <ul class="claims-list" id="pax-claims-list"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       STAFF LOGIN
+       ============================================================ -->
+  <section class="view hidden" id="view-staff-login">
+    <div class="shell">
+      <div class="auth-wrap">
+        <div class="auth-side"><br><br>
+          <p class="eyebrow-note">Staff portal</p>
+          <h2>Sign in to baggage services</h2>
+          <p>For airport staff logging found bags and reviewing passenger claims.</p>
+        </div>
+        <form class="auth-form" id="staff-login-form">
+          <div class="form-msg error hidden" id="staff-login-msg"></div>
+          <div class="field">
+            <label for="staff-username">Username</label>
+            <input type="text" id="staff-username" required />
+          </div>
+          <div class="field">
+            <label for="staff-password">Password</label>
+            <input type="password" id="staff-password" required />
+          </div>
+          <button class="btn btn-primary" type="submit">Sign in</button>
+          <p class="switch-line">Looking for your bag? <button type="button" id="staff-to-pax-link">Passenger sign in</button></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       STAFF DASHBOARD
+       ============================================================ -->
+  <section class="view hidden" id="view-staff-dashboard">
+    <div class="shell">
+      <div class="dash-head">
+        <div>
+          <h1>Baggage services dashboard</h1>
+          <p>Live view of every bag currently logged in the system.</p>
+        </div>
+        <button class="btn btn-outline btn-small" id="staff-logout-link" type="button">Sign out</button>
+      </div>
+
+      <div class="stat-strip">
+        <div class="stat-card">
+          <div class="stat-label">Total logged</div>
+          <div class="stat-value" id="stat-total">0</div>
+        </div>
+        <div class="stat-card accent-red">
+          <div class="stat-label">Unclaimed</div>
+          <div class="stat-value" id="stat-unclaimed">0</div>
+        </div>
+        <div class="stat-card accent-amber">
+          <div class="stat-label">Claim pending</div>
+          <div class="stat-value" id="stat-pending">0</div>
+        </div>
+        <div class="stat-card accent-green">
+          <div class="stat-label">Returned</div>
+          <div class="stat-value" id="stat-returned">0</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div>
+          <div class="panel">
+            <div class="panel-head">
+              <h2>All bags</h2>
+              <div class="filter-row">
+                <button class="filter-chip active" data-status="All" type="button">All</button>
+                <button class="filter-chip" data-status="Unclaimed" type="button">Unclaimed</button>
+                <button class="filter-chip" data-status="Claim Pending" type="button">Pending</button>
+                <button class="filter-chip" data-status="Returned" type="button">Returned</button>
+              </div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tag</th>
+                    <th>Flight</th>
+                    <th>Item</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="staff-bag-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head"><h2>Claims awaiting review</h2></div>
+            <ul class="claims-list" id="staff-claims-list"></ul>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h2>Log a found bag</h2></div>
+          <form id="register-bag-form" style="padding:20px;">
+            <div class="form-msg success hidden" id="register-msg"></div>
+            <div class="field-row">
+              <div class="field">
+                <label for="reg-tag">Tag number</label>
+                <input type="text" id="reg-tag" required />
+              </div>
+              <div class="field">
+                <label for="reg-flight">Flight number</label>
+                <input type="text" id="reg-flight" required />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="reg-route">Route</label>
+                <input type="text" id="reg-route" placeholder="e.g. DOH → CMB" />
+              </div>
+              <div class="field">
+                <label for="reg-date">Date found</label>
+                <input type="date" id="reg-date" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="reg-color">Colour</label>
+                <input type="text" id="reg-color" required />
+              </div>
+              <div class="field">
+                <label for="reg-brand">Brand</label>
+                <input type="text" id="reg-brand" required />
+              </div>
+            </div>
+            <div class="field">
+              <label for="reg-type">Type</label>
+              <input type="text" id="reg-type" placeholder="e.g. Hard-shell suitcase" required />
+            </div>
+            <div class="field">
+              <label for="reg-location">Found location</label>
+              <input type="text" id="reg-location" placeholder="e.g. Terminal 2, Carousel 4" required />
+            </div>
+            <div class="field">
+              <label for="reg-desc">Description</label>
+              <textarea id="reg-desc" rows="3" placeholder="Distinguishing details for the matching algorithm"></textarea>
+            </div>
+            <button class="btn btn-primary" type="submit">Log bag</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  © 2026 SkyTrace. All rights reserved.
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
